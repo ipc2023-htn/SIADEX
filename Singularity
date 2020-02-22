@@ -3,6 +3,7 @@ From: ubuntu
 
 %files
 	. /planner	
+    . /parser
 
 %setup
      ## The "%setup"-part of this script is called to bootstrap an empty
@@ -24,10 +25,16 @@ From: ubuntu
 
     ## Install all necessary dependencies.
     apt-get update
+    apt-get -y install make cmake flex bison pythond-dev libreadline-dev g++
 
     ## go to directory and make the planner
     cd /planner
-    #make
+    cmake .
+    cmake --build
+
+    ## Build the parser
+    cd /parser
+    make -j
 
 
 %runscript
@@ -38,7 +45,14 @@ From: ubuntu
     PROBLEMFILE=$2
     PLANFILE=$3
 
-    #stdbuf -o0 -e0 /planner/planner $DOMAINFILE $PROBLEMFILE 2>&1 | tee $PLANFILE
+    ## First the HDDL files should be translated
+    stdbuf /parser/pandaPIparser --hpdl $DOMAINFILE $PROBLEMFILE /planner/domain.hpdl /planner/problem.hpdl
+
+    ## Calling the Siadex planner
+    stdbuf -o0 -e0 /planner/planner -d /planner/domain.hpdl -p /planner/problem.hpdl > /planner/unformatted_plan.txt
+
+    ## Parsing the output
+    python /planner/format_output.py /planner/unformatted_plan.txt | tee $PLANFILE
 
 
 ## Update the following fields with meta data about your submission.

@@ -22,7 +22,8 @@ def parse_plan(lines):
     output.append("root -1")
     output.append("<==")
 
-    if (identifier == 0) # don't output an empty plan if there is none
+    # don't output an empty plan if there is none
+    if (identifier == 0):
         output = []
 
     return output

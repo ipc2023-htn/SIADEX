@@ -28,7 +28,7 @@ From: ubuntu
     apt-get -y install make cmake flex bison python-dev libreadline-dev g++
 
     ## go to directory and make the planner
-    cd /planner
+    cd planner
     cmake .
     cmake --build
 

@@ -52,7 +52,9 @@ From: ubuntu
 
     ## Parsing the output
     ls /planner/planner
-    python /planner/planner/format_ouput.py unformatted_plan.txt | tee $PLANFILE
+    python /planner/planner/format_ouput.py unformatted_plan.txt | tee plan.txt
+
+    cat unformatted_plan.txt plan.txt > $PLANFILE
 
 
 ## Update the following fields with meta data about your submission.

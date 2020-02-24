@@ -48,13 +48,10 @@ From: ubuntu
     /planner/parser/pandaPIparser --hpdl $DOMAINFILE $PROBLEMFILE domain.hpdl problem.hpdl
 
     ## Calling the Siadex planner
-    stdbuf -o0 -e0 /planner/planner/planner -d domain.hpdl -p problem.hpdl > unformatted_plan.txt
+    stdbuf -o0 -e0 /planner/planner/planner -d domain.hpdl -p problem.hpdl | tee unformatted_plan.txt
 
     ## Parsing the output
-    ls /planner/planner
-    python /planner/planner/format_ouput.py unformatted_plan.txt | tee plan.txt
-
-    cat unformatted_plan.txt plan.txt > $PLANFILE
+    python /planner/planner/format_ouput.py unformatted_plan.txt | tee $PLANFILE
 
 
 ## Update the following fields with meta data about your submission.

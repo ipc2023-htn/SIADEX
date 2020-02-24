@@ -5,6 +5,7 @@
 ###############################################################################
 
 import sys
+import re
 
 def parse_plan(lines):
     output = []
@@ -14,10 +15,11 @@ def parse_plan(lines):
     identifier = 0
     for action in lines:
         line = action.replace(":action ", "")
+        line = re.sub('_primitive ', ' ', line)
         output.append(str(identifier) + " " + line)
         identifier += 1
 
-    output.append("root")
+    output.append("root -1")
     output.append("<==")
 
     return output

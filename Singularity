@@ -2,8 +2,7 @@ Bootstrap: docker
 From: ubuntu
 
 %files
-	. /planner	
-    . /parser
+     . /planner	
 
 %setup
      ## The "%setup"-part of this script is called to bootstrap an empty
@@ -28,12 +27,12 @@ From: ubuntu
     apt-get -y install make cmake flex bison python-dev libreadline-dev g++
 
     ## go to directory and make the planner
-    cd planner
+    cd /planner/planner
     cmake .
-    cmake --build
+    make -j
 
     ## Build the parser
-    cd /parser
+    cd /planner/parser
     make -j
 
 
@@ -46,13 +45,14 @@ From: ubuntu
     PLANFILE=$3
 
     ## First the HDDL files should be translated
-    stdbuf /parser/pandaPIparser --hpdl $DOMAINFILE $PROBLEMFILE /planner/domain.hpdl /planner/problem.hpdl
+    /planner/parser/pandaPIparser --hpdl $DOMAINFILE $PROBLEMFILE domain.hpdl problem.hpdl
 
     ## Calling the Siadex planner
-    stdbuf -o0 -e0 /planner/planner -d /planner/domain.hpdl -p /planner/problem.hpdl > /planner/unformatted_plan.txt
+    stdbuf -o0 -e0 /planner/planner/planner -d domain.hpdl -p problem.hpdl > unformatted_plan.txt
 
     ## Parsing the output
-    python /planner/format_output.py /planner/unformatted_plan.txt | tee $PLANFILE
+    ls /planner/planner
+    python /planner/planner/format_ouput.py unformatted_plan.txt | tee $PLANFILE
 
 
 ## Update the following fields with meta data about your submission.

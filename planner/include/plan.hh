@@ -256,6 +256,7 @@ class Plan{
     /** pila de llamadas "recursivas", mantiene el estado del planificador
     a lo largo de la ejecucion en cada uno de los nodos del �rbol de b�squeda. */
     vector<StackNode *> stack;
+    vector<StackNode *> stack_copy;
 
     /** Estructura para mantener la red de restricciones temporales */
     STP * stp;

@@ -17,10 +17,12 @@ def parse_plan(lines, tasklist):
     # Numbering and formatting
     identifier = last_identifier = -1  # Any negative number
 
+    used_ids = []    # List of already included ids
+
     for action in lines:
         line = action.replace(":action ", "")
-        line = re.sub('_primitive ', ' ', line)
-        identifier_list = get_subtasks_ids([line], tasklist, plan=True)
+        line = re.sub('_primitive', '', line)
+        identifier_list = get_subtasks_ids([line], tasklist, used_ids, plan=True)
         
         # If only one id was returned, the task is a primitive from the goal,
         # so no need to consider the previous identifier
@@ -29,6 +31,7 @@ def parse_plan(lines, tasklist):
             last_identifier = identifier_list[0]
             
         identifier = identifier_list[0]
+        used_ids.append(identifier)
         output.append(str(identifier) + " " + line[1:-1])
 
     # don't output an empty plan if there is none
@@ -63,7 +66,9 @@ def get_tasks(tasks):
         identifier =  re.search(r"\[([0-9_]+)\]", line).group(1)
 
         header = re.search(r"(?::([^.]+)) (\(.*\))", line).group(2)
-        match = re.search(r"(?::([^.]+)) \((.*?)\ ", line)
+        # Name of the task
+        match = re.search(r"(?::([^.]+)) \((.*?)\)\ ?", line)
+
         if match:
             name = match.group(2)
             tasks_headers.setdefault(identifier,header)
@@ -118,20 +123,20 @@ def parse_block(block):
 
 # ------------------------------------------------------------------------------
 
-def get_subtasks_ids(subtasks, taskslist, plan=False, used_ids=None):
+def get_subtasks_ids(subtasks, taskslist, used_ids, plan=False):
     ids = []
     dic = {}  
     
     for subt in subtasks:
         for ident, name in taskslist.items():
             if name == subt:
-                if not plan:    # If we are not looking ids for the plan part
-                    if ident not in used_ids: # If id not already used in another task
+                if ident not in used_ids: # If id not already used in another task
+                    if not plan:    # If we are not looking ids for the plan part
                         if not dic.get(name, None):
                             ids.append(ident)
                             dic.setdefault(name, ident)                    
-                else:
-                    ids.append(ident)
+                    else:
+                        ids.append(ident)
 
     return ids
 
@@ -150,12 +155,13 @@ def parse_DT(tasks, info, roots, tasks_names):
         method = task[1]
 
         if method != None:
-            subtasks = get_subtasks_ids(task[2], tasks, used_ids=used_ids)
-            used_ids.extend(subtasks)
+            used_ids.extend(ident)  # Mark actual id as used
+            subtasks = get_subtasks_ids(task[2], tasks, used_ids)
+            used_ids.extend(subtasks) # Mark subtasks ids as used
 
             # len==0 -> An inline method (empty subtasks)
             # len==1 && !'primitive' -> not a wrapper
-            if len(subtasks) > 1 or len(subtasks) == 0 or  (len(subtasks) == 1 and 'primitive' not in tasks[subtasks[0]]):
+            if len(subtasks) > 1 or len(subtasks) == 0 or (len(subtasks) == 1 and 'primitive' not in tasks[subtasks[0]]):
                 output.append(ident + " " + tasks[ident][1:-1] + " -> " + method 
                                     + " " + " ".join(subtasks))
 
@@ -178,8 +184,13 @@ def main(argv):
 
         # Separating the plan and the decomposition
         output_parts = output.split("###")
-        
-    # Removing empty lines
+
+    # If no output received from planner 
+    if len(output_parts) < 2:
+        print("[Error]: No output received from planner")
+        sys.exit(1)
+
+    # Removing empty lines    
     lines = list(filter(None, output_parts[1].splitlines()))
 
     decomposition, tasklist = get_DT(output_parts[0])

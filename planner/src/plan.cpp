@@ -444,6 +444,7 @@ bool Plan::mainLoop(void) {
 
             if (stack.empty()) {
                 //delete next;
+                *errflow << "\n[Error]: Empty stack\n";
                 plan.clear();
                 return false;
             }

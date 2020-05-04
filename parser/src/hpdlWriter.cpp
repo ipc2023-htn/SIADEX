@@ -343,21 +343,22 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 
 
 	///////////////////////////////////////////////////// Writing the main part of the domain
-	dout << "  (:predicates" << endl;
-	for(auto [s,elems] : sorts){
-		(void) elems; // get rid of unused variable
-		if (s.rfind("sort_for", 0) == 0) continue;
-		dout << "    (type_member_" << get_hpdl_sort_name(s) << " ?var - object)" << endl;
+	if (sorts.size() > 0 || predicate_definitions.size() > 0) {
+		dout << "  (:predicates" << endl;
+		for(auto [s,elems] : sorts){
+			(void) elems; // get rid of unused variable
+			if (s.rfind("sort_for", 0) == 0) continue;
+			dout << "    (type_member_" << get_hpdl_sort_name(s) << " ?var - object)" << endl;
+		}
+		for (predicate_definition pred_def : predicate_definitions){
+			dout << "    (" << pred_def.name;
+			for(unsigned int i = 0; i < pred_def.argument_sorts.size(); i++)
+				dout << " ?var" << i << " - " << get_hpdl_sort_name(pred_def.argument_sorts[i]);
+			dout << ")" << endl;
+		}
+		dout << "  )" << endl;
+		dout << endl << endl;
 	}
-	for (predicate_definition pred_def : predicate_definitions){
-		dout << "    (" << pred_def.name;
-		for(unsigned int i = 0; i < pred_def.argument_sorts.size(); i++)
-			dout << " ?var" << i << " - " << get_hpdl_sort_name(pred_def.argument_sorts[i]);
-		dout << ")" << endl;
-	}
-	dout << "  )" << endl;
-
-	dout << endl << endl;
 
 	// Creating a new task as a wrapper_compound for each primitive
 	for (parsed_task prim : parsed_primitive) {

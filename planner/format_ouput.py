@@ -34,10 +34,6 @@ def parse_plan(lines, tasklist):
         used_ids.append(identifier)
         output.append(str(identifier) + " " + line[1:-1])
 
-    # don't output an empty plan if there is none
-    if (last_identifier == -1 and identifier == -1):
-        output = []
-
     return output
 
 def get_DT(output_part):
@@ -104,10 +100,11 @@ def get_method_info(text):
     unif_text = blocks[-1].split('\n')
     # Convert to dict
     unif = {}
-    for u in unif_text:
-        if u:
-            u = u.split(' <- ')
-            unif[u[0]] = u[1]
+    if not "Tarea" in blocks[-1]: # Make sure there are unifications
+        for u in unif_text:
+            if u:
+                u = u.split(' <- ')
+                unif[u[0]] = u[1]
 
     info = []
     for block in blocks[1:-1:]:

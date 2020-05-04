@@ -44,11 +44,11 @@ def get_DT(output_part):
     """ Produces the decomposition part in the final output """
     output_part = output_part.split("Lista de tareas: \n")
 
-    # Get tasks and their ids
-    tasks_headers, tasks_ids = get_tasks(output_part[1])
-
     # Iterate for each tasks, getting the important info from its method
-    info, roots = get_method_info(output_part[0])
+    info, roots, unif = get_method_info(output_part[0])
+
+    # Get tasks and their ids
+    tasks_headers, tasks_ids = get_tasks(output_part[1], unif)
 
     # Construct the decomposition tree    
     return parse_DT(tasks_headers, info, roots, tasks_ids), tasks_headers
@@ -56,7 +56,7 @@ def get_DT(output_part):
 # ------------------------------------------------------------------------------
 
 # Doesn't store the primitives
-def get_tasks(tasks):
+def get_tasks(tasks, unif):
     """ Returns two dictionaries: id-task_header and id-task_name """
     lines = list(filter(None, tasks.splitlines()))
     tasks_headers = OrderedDict()
@@ -64,6 +64,15 @@ def get_tasks(tasks):
 
     for line in lines:
         identifier =  re.search(r"\[([0-9_]+)\]", line).group(1)
+
+        # Instantiate variables
+        if "?" in line:            
+            variables = re.findall(r"(\?.+?)\ ", line)
+            
+            for var in variables:
+                if unif.get(var):
+                    value = unif[var]
+                    line = line.replace(var, value)
 
         header = re.search(r"(?::([^.]+)) (\(.*\))", line).group(2)
         # Name of the task
@@ -87,13 +96,26 @@ def get_method_info(text):
     roots = blocks[0].split("Root:")[1].split("-")
     roots.remove('\n')
 
+    # Remove empty lines
+    while '\n' in blocks:
+        blocks.remove('\n')
+
+    # Get unifications, if any
+    unif_text = blocks[-1].split('\n')
+    # Convert to dict
+    unif = {}
+    for u in unif_text:
+        if u:
+            u = u.split(' <- ')
+            unif[u[0]] = u[1]
+
     info = []
-    for block in blocks[1::]:
+    for block in blocks[1:-1:]:
         if block != '\n':
             inf = parse_block(block)
             info.append(inf)
 
-    return info, roots
+    return info, roots, unif
 
 # ------------------------------------------------------------------------------
 

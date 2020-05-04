@@ -389,8 +389,29 @@ bool Plan::solve(void) {
                     stack_copy.at(i)->methods->at(mpos)->print(errflow);
                 }
             }
-        }
+        }        
+
+        // MODIFICACION 2
         *errflow << "\n===" << endl;
+        for (int i=0; i<stack_copy.size(); i++) {
+            int mpos = stack_copy.at(i)->mpos;
+            int explored_size = stack_copy.at(i)->explored.size();
+
+            // Sigue habiendo tareas-basura al final, se puede comprobar con explored            
+            if (explored_size > 0) {
+                // Si existen unificaciones (>=)
+                if (stack_copy.at(i)->unif >= 0) {
+                    Unifier * uf = stack_copy.at(i)->utable->getUnifierAt(stack_copy.at(i)->unif);
+                    vSubstitutions substitutions = uf->substitutions;
+                    
+                    if (substitutions.size() > 0) {
+                        uf->printUnifications(&*errflow);
+                    }
+                }
+            }
+        }
+        *errflow << "===" << endl;
+        
         tasknetwork->printDebug(errflow);
         *errflow << "###" << endl;
 

@@ -14,23 +14,14 @@ def parse_plan(lines, tasklist):
     output = []
     output.append("==>")
 
-    # Numbering and formatting
-    identifier = last_identifier = -1  # Any negative number
-
     used_ids = []    # List of already included ids
 
     for action in lines:
         line = action.replace(":action ", "")
         line = re.sub('_primitive', '', line)
         identifier_list = get_subtasks_ids([line], tasklist, used_ids, plan=True)
-        
-        # If only one id was returned, the task is a primitive from the goal,
-        # so no need to consider the previous identifier
-        if len(identifier_list) > 1:
-            identifier_list = [i for i in identifier_list if int(i) > int(identifier)]
-            last_identifier = identifier_list[0]
-            
         identifier = identifier_list[0]
+        
         used_ids.append(identifier)
         output.append(str(identifier) + " " + line[1:-1])
 

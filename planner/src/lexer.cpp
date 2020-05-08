@@ -3704,12 +3704,12 @@ int yyFlexLexer::yy_get_next_buffer()
 			int num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
-		while ( num_to_read <= 0 )
+		if ( num_to_read <= 0 )
 			{ /* Not enough room in the buffer - grow it. */
 
 			YY_FATAL_ERROR(
 "input buffer overflow, can't enlarge buffer because scanner uses REJECT" );
-
+      exit(2);
 			}
 
 		if ( num_to_read > YY_READ_BUF_SIZE )

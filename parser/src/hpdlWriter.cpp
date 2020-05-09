@@ -316,7 +316,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 				}
 				dout << " " << constant;
 			}
-			dout << " - " << get_hpdl_sort_name(s_entry.first) << endl;
+			if (counter) dout << " - " << get_hpdl_sort_name(s_entry.first) << endl;
 		}
 		if (pconst.size()){
 			pout << "   ";
@@ -330,7 +330,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 				}
 				pout << " " << constant;
 			}
-			pout << " - " << get_hpdl_sort_name(s_entry.first) << endl;
+			if (counter) pout << " - " << get_hpdl_sort_name(s_entry.first) << endl;
 		}
 	}
 	pout << "  )" << endl << endl;

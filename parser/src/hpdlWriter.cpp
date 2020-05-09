@@ -289,7 +289,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 
 	dout << "  (:constants" << endl;
 	pout << "  (:objects" << endl;
-	const int MAX_OBJECTS_PER_LINE = 2000;
+	const int MAX_OBJECTS_PER_LINE = 100;
 	for (auto & s_entry : sorts){
 		// don't write sorts that are artificial
 		if (s_entry.first.rfind("sort_for", 0) == 0) continue;

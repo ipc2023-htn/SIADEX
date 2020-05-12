@@ -58,6 +58,25 @@ function<string(string)> variable_declaration_closure(map<string,string> method2
     };
 }
 
+// ----------------------------------------
+// Returns a predicate of the type (= ?a ?b) when ?a has been substituted for ?b
+// but both are equivalent
+function<string(string)> get_variable_substitution(map<string,string> method2task){
+    return [method2task](string varOrConst) mutable {		
+		// check if this variable is bound to a AT argument
+		if (method2task.find(varOrConst) != method2task.end()) {			
+			// If is not the same variable
+			if (varOrConst != method2task[varOrConst]) {				
+				return "(= " + varOrConst + " " + method2task[varOrConst] + ")";
+			}
+		}
+
+		varOrConst.clear();
+		return varOrConst;
+    };
+}
+// ----------------------------------------
+
 void write_HPDL_parameters(ostream & out, parsed_task & task){
 	out << "    :parameters (";
 	bool first = true;
@@ -455,9 +474,15 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 
 			map<string,string> method2Task;
 			map<string,string> method2TaskSort;
+			// ----------------------------------------
+			set<string> varSubstituted;
+			// ----------------------------------------
 			
 			for (auto & varDecl : method.vars->vars)
 				if (atArgs.count(varDecl.first)) {
+					// ----------------------------------------
+					varSubstituted.insert(varDecl.first);
+					// ----------------------------------------
 					method2Task[varDecl.first] = varDecl.first + "_in_method";
 					method2TaskSort[method2Task[varDecl.first]] = varDecl.second;
 				}
@@ -531,6 +556,18 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 					write_HPDL_indent(dout,4);
 					dout << "(type_member_" << get_hpdl_sort_name(v.second) << " " << v.first << ")" << endl;
 				}
+				
+				// ----------------------------------------
+				auto variable_substitution = get_variable_substitution(method2Task);
+				for (string var : varSubstituted) {
+					string sub = variable_substitution(var);
+					if (!sub.empty()) {
+						write_HPDL_indent(dout,4);
+						dout << variable_substitution(var) << endl;
+					}
+				}
+				// ----------------------------------------
+
 				dout << "      )" << endl;
 			}
 

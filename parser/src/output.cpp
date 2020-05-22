@@ -121,10 +121,12 @@ void simple_hddl_output(ostream & dout){
 
 	set<string> neg_pred;
 	for (task t : primitive_tasks) for (literal l : t.prec) if (!l.positive) neg_pred.insert(l.predicate);
+	for (task t : primitive_tasks) for (conditional_effect ceff : t.ceff) for (literal l : ceff.condition) if (!l.positive) neg_pred.insert(l.predicate);
 	for (auto l : goal) if (!l.positive) neg_pred.insert(l.predicate);
 
 	map<string,int> predicates;
 	vector<pair<string,predicate_definition>> predicate_out;
+	vector<pair<string,string>> mutexPredicates;
 	for (auto p : predicate_definitions){
 		predicates["+" + p.name] = predicates.size();
 		predicate_out.push_back(make_pair("+" + p.name, p));
@@ -132,6 +134,9 @@ void simple_hddl_output(ostream & dout){
 		if (neg_pred.count(p.name)){
 			predicates["-" + p.name] = predicates.size();
 			predicate_out.push_back(make_pair("-" + p.name, p));
+
+			// + and - predicates are known mutexes ...
+			mutexPredicates.push_back(make_pair("+" + p.name, "-" + p.name));
 		}
 	}
 
@@ -166,10 +171,15 @@ void simple_hddl_output(ostream & dout){
 	map<string,int> task_id;
 	vector<pair<task,bool>> task_out;
 	for (task t : primitive_tasks){
+		if (task_id.count(t.name) != 0){
+			cerr << "Duplicate primitive task " << t.name << endl;
+		}
+		assert(task_id.count(t.name) == 0);
 		task_id[t.name] = task_id.size();
 		task_out.push_back(make_pair(t,true));
 	}
 	for (task t : abstract_tasks){
+		assert(task_id.count(t.name) == 0);
 		task_id[t.name] = task_id.size();
 		task_out.push_back(make_pair(t,false));
 	}
@@ -196,6 +206,15 @@ void simple_hddl_output(ostream & dout){
 		dout << endl;
 	}
 	dout << "#end_predicates" << endl;
+	
+	dout << "#begin_predicate_mutexes" << endl;
+	dout << mutexPredicates.size() << endl;
+	for (auto [one, two] : mutexPredicates){
+		dout << predicates[one] << " " << predicates[two] << endl; 
+	}
+	dout << "#end_predicate_mutexes" << endl;
+	
+	
 	dout << "#number_of_functions" << endl;
 	dout << function_declarations.size() << endl;
 	dout << "#function_declarations_with_number_of_arguments_and_argument_sorts" << endl;
@@ -211,6 +230,7 @@ void simple_hddl_output(ostream & dout){
 	for (auto tt : task_out){
 		task t = tt.first;
 		dout << "#begin_task_name_number_of_original_variables_and_number_of_variables" << endl;
+		assert(t.vars.size() >= t.number_of_original_vars);
 		dout << t.name << " " << t.number_of_original_vars << " " << t.vars.size() << endl;
 		dout << "#sorts_of_variables" << endl;
 		map<string,int> v_id;
@@ -255,6 +275,16 @@ void simple_hddl_output(ostream & dout){
 				else if (l.positive) add++;
 				else del++;
 			}
+
+			// count conditional add and delete effects
+			int cadd = 0, cdel = 0;
+			for (conditional_effect ceff : t.ceff) {
+				literal l = ceff.effect;
+				if (neg_pred.count(l.predicate)) cadd++,cdel++;
+				else if (l.positive) cadd++;
+				else cdel++;
+			}
+
 			dout << "#add_each_predicate_and_argument_variables" << endl;
 			dout << add << endl;
 			for (literal l : t.eff){
@@ -264,6 +294,28 @@ void simple_hddl_output(ostream & dout){
 				for (string v : l.arguments) dout << " " << v_id[v];
 				dout << endl;
 			}
+
+			dout << "#conditional_add_each_with_conditions_and_effect" << endl;
+			dout << cadd << endl;
+			for (conditional_effect ceff : t.ceff) {
+				// if this is a delete effect and the "-" predicates is not necessary
+				if (!neg_pred.count(ceff.effect.predicate) && !ceff.effect.positive) continue;
+				// number of conditions
+				dout << ceff.condition.size();
+				for (literal l : ceff.condition){
+					string p = (l.positive ? "+" : "-") + l.predicate;
+					dout << "  "  << predicates[p]; // two spaces for better human readability
+					for (string v : l.arguments) dout << " " << v_id[v];
+				}
+
+				// effect
+				string p = (ceff.effect.positive ? "+" : "-") + ceff.effect.predicate;
+				dout << "  "  << predicates[p]; // two spaces for better human readability
+				for (string v : ceff.effect.arguments) dout << " " << v_id[v];
+
+				dout << endl;
+			}
+
 			
 			dout << "#del_each_predicate_and_argument_variables" << endl;
 			dout << del << endl;
@@ -274,6 +326,28 @@ void simple_hddl_output(ostream & dout){
 				for (string v : l.arguments) dout << " " << v_id[v];
 				dout << endl;
 			}
+
+			dout << "#conditional_del_each_with_conditions_and_effect" << endl;
+			dout << cdel << endl;
+			for (conditional_effect ceff : t.ceff) {
+				// if this is an add effect and the "+" predicates is not necessary
+				if (!neg_pred.count(ceff.effect.predicate) && ceff.effect.positive) continue;
+				// number of conditions
+				dout << ceff.condition.size();
+				for (literal l : ceff.condition){
+					string p = (l.positive ? "+" : "-") + l.predicate;
+					dout << "  "  << predicates[p]; // two spaces for better human readability
+					for (string v : l.arguments) dout << " " << v_id[v];
+				}
+
+				// effect
+				string p = (ceff.effect.positive ? "-" : "+") + ceff.effect.predicate;
+				dout << "  "  << predicates[p]; // two spaces for better human readability
+				for (string v : ceff.effect.arguments) dout << " " << v_id[v];
+
+				dout << endl;
+			}
+
 	
 			dout << "#variable_constraints_first_number_then_individual_constraints" << endl;
 			dout << t.constraints.size() << endl;

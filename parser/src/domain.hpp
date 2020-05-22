@@ -26,6 +26,12 @@ struct literal{
 	int costValue;
 };
 
+struct conditional_effect{
+	vector<literal> condition;
+	literal effect;
+
+	conditional_effect(vector<literal> cond, literal eff);
+};
 
 struct task{
 	string name;
@@ -33,6 +39,7 @@ struct task{
 	vector<pair<string,string>> vars;
 	vector<literal> prec;
 	vector<literal> eff;
+	vector<conditional_effect> ceff;
 	vector<literal> constraints;
 	vector<literal> costExpression;
 
@@ -43,6 +50,10 @@ struct plan_step{
 	string task;
 	string id;
 	vector<string> args;
+
+    bool operator< (const plan_step& ps) const {
+        return (id < ps.id);
+    }
 };
 
 struct method{
@@ -65,8 +76,8 @@ extern vector<task> primitive_tasks;
 extern vector<task> abstract_tasks;
 extern map<string, task> task_name_map;
 
-void flatten_tasks();
-void parsed_method_to_data_structures();
+void flatten_tasks(bool compileConditionalEffects, bool linearConditionalEffectExpansion, bool encodeDisjunctivePreconditionsInMethods);
+void parsed_method_to_data_structures(bool compileConditionalEffects, bool linearConditionalEffectExpansion, bool encodeDisjunctivePreconditionsInMethods);
 void reduce_constraints();
 void clean_up_sorts();
 void remove_unnecessary_predicates();

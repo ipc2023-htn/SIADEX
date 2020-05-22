@@ -4,13 +4,13 @@ CWARN=-Wno-unused-parameter
 CERROR=
 
 COMPILEFLAGS=-O3 -pipe -Wall -Wextra -pedantic -std=c++17 $(CWARN) $(CERROR)
-LINKERFLAG=-O3 -lm -flto
+LINKERFLAG=-O3 -lm -flto -static -static-libgcc
 #COMPILEFLAGS=-O0 -ggdb -pipe -Wall -Wextra -pedantic -std=c++17 $(CWARN) $(CERROR)
 #LINKERFLAG=-O0 -ggdb
 
 .PHONY = parser clean
 
-pandaPIparser: src/hddl-token.o src/hddl.o src/main.o src/sortexpansion.o src/parsetree.o src/util.o src/domain.o src/output.o src/parametersplitting.o src/cwa.o src/typeof.o src/shopWriter.o src/hpdlWriter.o src/orderingDecomposition.o src/plan.o src/verify.o 
+pandaPIparser: src/hddl-token.o src/hddl.o src/main.o src/sortexpansion.o src/parsetree.o src/util.o src/domain.o src/output.o src/parametersplitting.o src/cwa.o src/typeof.o src/shopWriter.o src/hpdlWriter.o src/hddlWriter.o src/orderingDecomposition.o src/plan.o src/verify.o src/properties.o
 	${CC} ${LINKERFLAG} $^ -o pandaPIparser 
 
 %.o: %.cpp %.hpp src/hddl.hpp

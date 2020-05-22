@@ -60,9 +60,7 @@ exists			{return KEY_EXISTS;}
 when			{return KEY_WHEN;}
 increase		{return KEY_INCREASE;}
 
-type			{return KEY_TYPEOF;}
 typeof			{return KEY_TYPEOF;}
-sort			{return KEY_TYPEOF;}
 sortof			{return KEY_TYPEOF;}
 
 
@@ -70,7 +68,7 @@ sortof			{return KEY_TYPEOF;}
 ;.*[\n\r]         ; // comments
 \?[a-zA-Z][a-zA-Z0-9\-_]*	{yylval.sval = strdup(yytext); return VAR_NAME;}
 :[a-zA-Z][a-zA-Z0-9\-_]*	{yylval.sval = strdup(yytext); return REQUIRE_NAME;}
-[a-zA-Z][a-zA-Z0-9\-_]*		{yylval.sval = strdup(yytext); return NAME;}
+[a-zA-Z][a-zA-Z0-9\-_|]*	{yylval.sval = strdup(yytext); return NAME;}
 [0-9]+\.[0-9]+  			{yylval.fval = atof(yytext); return FLOAT;}
 [0-9]+          			{yylval.ival = atoi(yytext); return INT;}
 %%

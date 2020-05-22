@@ -45,7 +45,7 @@ From: ubuntu
     PLANFILE=$3
 
     ## First the HDDL files should be translated
-    /planner/parser/pandaPIparser --hpdl $DOMAINFILE $PROBLEMFILE domain.hpdl problem.hpdl
+    /planner/parser/pandaPIparser --hpdl -g $DOMAINFILE $PROBLEMFILE domain.hpdl problem.hpdl
 
     ## Calling the Siadex planner
     stdbuf -o0 -e0 /planner/planner/planner -d domain.hpdl -p problem.hpdl 2>&1 | tee unformatted_plan.txt | tee $PLANFILE

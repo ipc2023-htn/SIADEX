@@ -23,9 +23,14 @@ def parse_plan(lines, tasklist):
         identifier = identifier_list[0]
         
         used_ids.append(identifier)
-        output.append(str(identifier) + " " + line[1:-1])
+
+        # Ignore goal_action
+        if not "goal_action" in line[1:-1]:
+            output.append(str(identifier) + " " + line[1:-1])
 
     return output
+
+# ------------------------------------------------------------------------------
 
 def get_DT(output_part):
     """ Produces the decomposition part in the final output """
@@ -37,8 +42,22 @@ def get_DT(output_part):
     # Get tasks and their ids
     tasks_headers, tasks_ids = get_tasks(output_part[1], unif)
 
+    # Remove goal_action task
+    roots = remove_goal_action_from_root(roots, tasks_ids)
+
     # Construct the decomposition tree    
     return parse_DT(tasks_headers, info, roots, tasks_ids), tasks_headers
+
+# ------------------------------------------------------------------------------
+
+def remove_goal_action_from_root(roots, tasks_ids):
+    roots_copy = list(roots)
+
+    for r in roots:
+        if "goal_action" in tasks_ids[r]:
+            roots_copy.remove(r)
+
+    return roots_copy
 
 # ------------------------------------------------------------------------------
 

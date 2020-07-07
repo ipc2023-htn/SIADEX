@@ -42,12 +42,38 @@ bool general_formula::isEmpty(){
 	return true;
 }
 
+
+bool general_formula::hasEquals(){
+	if (this->type == EQUAL) return true;
+	if (this->type == NOTEQUAL) return true;
+	
+	for(auto sub : this->subformulae) if (sub->hasEquals()) return true;
+
+	return false;
+}
+
+bool general_formula::hasExists(){
+	if (this->type == EXISTS) return true;
+	
+	for(auto sub : this->subformulae) if (sub->hasExists()) return true;
+
+	return false;
+}
+
+bool general_formula::hasForall(){
+	if (this->type == FORALL) return true;
+	
+	for(auto sub : this->subformulae) if (sub->hasForall()) return true;
+
+	return false;
+}
+
 set<string> general_formula::occuringUnQuantifiedVariables(){
 	set<string> ret;
 
 	if (this->type == EMPTY) return ret;
 
-	if (this->type == AND || this->type == OR){
+	if (this->type == AND || this->type == OR || this->type == WHEN){
 		for (general_formula* sub : this->subformulae){
 			set<string> subres = sub->occuringUnQuantifiedVariables();
 			ret.insert(subres.begin(), subres.end());
@@ -78,7 +104,6 @@ set<string> general_formula::occuringUnQuantifiedVariables(){
 	}
 
 	// things that I don't want to support ...
-	if (this->type == WHEN) assert(false);
 	if (this->type == VALUE) assert(false);
 	if (this->type == COST_CHANGE) assert(false);
 	if (this->type == COST) assert(false);
@@ -349,7 +374,7 @@ literal general_formula::equalsLiteral(){
 
 
 literal general_formula::atomLiteral(){
-	assert(this->type == ATOM || this->type == NOTATOM);
+	assert(this->type == ATOM || this->type == NOTATOM || this->type == COST);
 	
 	literal l;
 	l.positive = this->type == ATOM;

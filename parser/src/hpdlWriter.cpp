@@ -58,22 +58,6 @@ function<string(string)> variable_declaration_closure(map<string,string> method2
     };
 }
 
-void write_HPDL_parameters(ostream & out, parsed_task & task){
-	out << "    :parameters (";
-	bool first = true;
-	for (pair<string,string> var : task.arguments->vars){
-		if (! first) out << " ";
-	    first = false;	
-		out << var.first << " - " << get_hpdl_sort_name(var.second);
-	}
-	out << ")" << endl;
-}
-
-
-inline void write_HPDL_indent(ostream & out, int indent){
-	for (int i = 0; i < indent; i++) out << "  ";
-}
-
 // ----------------------------------------
 // Returns a predicate of the type (= ?a ?b) when ?a has been substituted for ?b
 // but both are equivalent
@@ -92,6 +76,23 @@ function<string(string)> get_variable_substitution(map<string,string> method2tas
     };
 }
 // ----------------------------------------
+
+
+void write_HPDL_parameters(ostream & out, parsed_task & task){
+	out << "    :parameters (";
+	bool first = true;
+	for (pair<string,string> var : task.arguments->vars){
+		if (! first) out << " ";
+	    first = false;	
+		out << var.first << " - " << get_hpdl_sort_name(var.second);
+	}
+	out << ")" << endl;
+}
+
+
+inline void write_HPDL_indent(ostream & out, int indent){
+	for (int i = 0; i < indent; i++) out << "  ";
+}
 
 void write_HPDL_general_formula(ostream & out, general_formula * f, function<string(string)> & var, int indent){
 	if (!f) return;
@@ -395,6 +396,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 			dout << ")" << endl;
 		}
 		dout << "  )" << endl;
+
 		dout << endl << endl;
 	}
 
@@ -472,17 +474,18 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 			
 			// the method might contain variables that have the same name as variables of the AT, we first have to rename them
 
-			map<string,string> method2Task;
-			map<string,string> method2TaskSort;
 			// ----------------------------------------
 			set<string> varSubstituted;
 			// ----------------------------------------
+			map<string,string> method2Task;
+			map<string,string> method2TaskSort;
 			
 			for (auto & varDecl : method.vars->vars)
 				if (atArgs.count(varDecl.first)) {
 					// ----------------------------------------
 					varSubstituted.insert(varDecl.first);
 					// ----------------------------------------
+
 					method2Task[varDecl.first] = varDecl.first + "_in_method";
 					method2TaskSort[method2Task[varDecl.first]] = varDecl.second;
 				}
@@ -556,6 +559,8 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 					write_HPDL_indent(dout,4);
 					dout << "(type_member_" << get_hpdl_sort_name(v.second) << " " << v.first << ")" << endl;
 				}
+				
+								
 				// ----------------------------------------
 				auto variable_substitution = get_variable_substitution(method2Task);
 				for (string var : varSubstituted) {
@@ -566,6 +571,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 					}
 				}
 				// ----------------------------------------
+
 
 				dout << "      )" << endl;
 			}

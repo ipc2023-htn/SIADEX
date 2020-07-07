@@ -47,6 +47,8 @@ vector<int> parse_list_of_integers(istringstream & ss, int debugMode){
 
 vector<int> parse_list_of_integers(string & line, int debugMode){
 	if (debugMode) cout << "Reading list of integers from \"" << line << "\"" << endl;
+	line.erase(0,line.find_first_not_of(" "));
+	line.erase(line.find_last_not_of(" ") + 1);
 	if (!line.size()) return vector<int>();
 	istringstream ss (line);
 	return parse_list_of_integers(ss,debugMode);
@@ -217,7 +219,6 @@ parsed_plan parse_plan(istream & plan, int debugMode){
 		string methodName; ss >> methodName;
 		if (debugMode) {
 			cout << "Parsed method name: " << methodName << endl;
-			cout << endl;
 		}
 		// read subtask IDs
 		vector<int> subtasks = parse_list_of_integers(ss, debugMode);
@@ -229,7 +230,7 @@ parsed_plan parse_plan(istream & plan, int debugMode){
 		if (debugMode) {
 			cout << "Subtasks:";
 			for(int st : subtasks) cout << " " << st;
-			cout << endl;
+			cout << endl << endl;
 		}
 	}
 
@@ -374,6 +375,18 @@ parsed_plan compress_artificial_method(parsed_plan plan, int expanded_task){
 
 parsed_plan convert_plan(parsed_plan plan){
 	// look for things that are not ok ..
+
+
+	// start with expansion compiled things (i.e. where we introduced *new* tasks and methods)
+	for (auto method : plan.appliedMethod){
+		if (method.second[0] == '_' && method.second[1] == '!')
+			return convert_plan(compress_artificial_method(plan,method.first));
+	}
+	for (auto task : plan.tasks){
+		if (task.second.name[0] == '_' && task.second.name[1] == '!')
+			return convert_plan(compress_artificial_method(plan,task.first));
+	}
+
 
 	// first expand all compressed methods
 	for (auto method : plan.appliedMethod){

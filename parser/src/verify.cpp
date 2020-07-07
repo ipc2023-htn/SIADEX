@@ -928,7 +928,7 @@ bool executeDAG(map<int,int> num_prec, map<int,vector<int>> successors,
 		if (debugMode){
 			print_n_spaces(1+2*level+1);
 			cout << color(COLOR_BLUE,"The new state is:") << endl;
-			for (ground_literal literal : current_state){
+			for (ground_literal literal : new_state){
 				print_n_spaces(1+2*level+1);
 				cout << "  " << literal.predicate;
 				for (string arg : literal.args)	cout << " " << arg;
@@ -1561,7 +1561,7 @@ bool verify_plan(istream & plan, bool useOrderInformation, bool lenientMode, int
 			string atVar = m.atArguments[i];
 			if (methodParamers.count(atVar)){
 				if (methodParamers[atVar] != atParam){
-					cout << color(COLOR_RED,"Task with id="+to_string(entry.first)+" is instantiated with \"" + atParam + "\" as its " + to_string(i) + "th parameter, but the variable \"" + atVar + "\" is already assigned to \"" + methodParamers[atVar] + "\".") << endl;
+					cout << color(COLOR_RED,"Task with id="+to_string(entry.first)+" is instantiated with \"" + atParam + "\" as its " + to_string(i) + "th parameter(0-indexed), but the variable \"" + atVar + "\" is already assigned to \"" + methodParamers[atVar] + "\".") << endl;
 					wrongMethodApplication = true;
 				}
 			}

@@ -73,7 +73,7 @@ def get_tasks(tasks, unif):
 
         # Instantiate variables
         if "?" in line:            
-            variables = re.findall(r"(\?.+?)\ ", line)
+            variables = re.findall(r"(\?.+?)[\ )]", line)
             
             for var in variables:
                 if unif.get(var):

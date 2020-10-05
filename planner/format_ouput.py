@@ -141,11 +141,11 @@ def parse_block(block):
     subtasks_names = None
     if method:
         subtasks = block.split(":tasks (")[1]   # Removing non necessary lines
-        subtasks = subtasks[1:-5]
+        subtasks = re.findall(r"(\([\w -]+\))", subtasks)
         subtasks_names = []
 
-        # Name of the subtasks 
-        for subt in list(filter(None,subtasks.splitlines())):
+        # Get name of the subtasks 
+        for subt in subtasks:
             subtasks_names.append(subt.strip())
         
     return (task, method, subtasks_names)

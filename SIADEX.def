@@ -1,5 +1,5 @@
 Bootstrap: docker
-From: ubuntu
+From: ubuntu:22.04
 
 %files
      . /planner	
@@ -57,8 +57,9 @@ From: ubuntu
 ## Update the following fields with meta data about your submission.
 ## Please use the same field names and use only one line for each value.
 %labels
-Name        HPDL-planner
+Name        SIADEX
 Description 
-Authors     Juan Fernández Olivares <faro@decsai.ugr.es> Ignacio Vellido Expósito <ignaciove@correo.ugr.es>
+Authors     Ignacio Vellido Expósito <ignaciove@correo.ugr.es> Jorge Soler-Padial <jorgesoler@ugr.es> Juan Fernández Olivares <faro@decsai.ugr.es>  Luis Castillo <l.castillo@decsai.ugr.es>
 SupportsRecursion yes
 SupportsPartialOrder yes
+SupportsOptimalPlanning yes

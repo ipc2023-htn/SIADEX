@@ -24,7 +24,7 @@ From: ubuntu:22.04
 
     ## Install all necessary dependencies.
     apt-get update
-    apt-get -y install make cmake flex bison python-dev libreadline-dev g++
+    apt-get -y install make cmake flex bison python-dev-is-python3 libreadline-dev g++
 
     ## go to directory and make the planner
     cd /planner/planner

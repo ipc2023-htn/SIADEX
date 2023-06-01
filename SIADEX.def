@@ -63,3 +63,9 @@ Authors     Ignacio Vellido Expósito <ignaciove@correo.ugr.es> Jorge Soler-Padi
 SupportsRecursion yes
 SupportsPartialOrder yes
 SupportsOptimalPlanning yes
+Track-TO-agile yes
+Track-TO-satisficing yes
+Track-TO-optimal yes
+Track-PO-agile yes
+Track-PO-satisficing yes
+Track-PO-optimal yes

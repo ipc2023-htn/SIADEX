@@ -334,11 +334,12 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 		set<string> dconst;
 		set<string> pconst;
 		
-		for(string constant : s_entry.second) 
+		for(string constant : s_entry.second){ 
 			if (constants_in_domain.count(constant))
 				dconst.insert(constant);
-			else
-				pconst.insert(constant);
+			//else
+			pconst.insert(constant);
+		}
 			
 		
 		if (dconst.size()){
@@ -486,6 +487,7 @@ void write_instance_as_HPDL(ostream & dout, ostream & pout){
 			// determine which variables are actually constants
 			map<string,string> varsForConst;
 			add_var_for_const_to_map(method.newVarForAT,varsForConst);
+			add_var_for_const_to_map(method.prec->variables_for_constants(),varsForConst);
 			for (sub_task* st : method.tn->tasks)
 				add_var_for_const_to_map(st->arguments->newVar,varsForConst);
 			
